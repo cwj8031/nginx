@@ -1,0 +1,67 @@
+1.file
+
+	main file:nginx.conf
+		include:conf.f/*.conf
+	facsgi、scgi、uwscgi等相关配置，/etc/nginx  下配置
+
+2.nginx.conf
+
+	three parts:  
+		main block:total configure
+		event:something about event
+		http:http and web
+
+3.main配置段：全局配置
+	（1）正常运行必备的配置
+		1、user USERNAME [GROUPNAME];
+    			指定用户运行work进程的用户和组；
+		例如：user nginx nginx；
+
+		2、pid /PAEH/TO/PID_FILE;指明运行时的pid文件在哪，指定nginx进程的pid文件路径：
+    			pid /var/run/nginx.pid;
+
+		3、worker_rlimit_nofile number:单个work进程可以打开的最大文件数，默认是1024个，如果有很多，可以调大一点
+
+	(2)性能优化相关配置
+		1、worker_processes number |auto;自动设定，1.8以后才支持
+			用来指明work作进程的进程数
+			通常应该为cpu的核心数减1，可以是auto
+
+		16核服务器，14个隔离出来，2个运行，剩下14个每个绑一个work，不这样做，每个cpu核心都需要被work进程去调			度的，不断的被进程切换着，nginx被切换出去以后，下次再切换过来就不一定是原来那个核了，cpu本地缓存就			不能应用了，性能得不到提升，nginx性能很重要。
+
+		ps aux 有几个worker process
+		lscpu 看cpu有几个  可以相同，也可以-1.
+
+
+		2、work_cpu_affinity cpumask ...;
+		worker_cpu_affinity auto [cpumask],auto是自动绑定，也可能不支持
+		work_processes 2;
+		work_cpu_affinity 0010 0100;
+		含义就是选的两个work_process，绑定在哪两个cpu上
+
+	（3）指明进程优先级，nice越小，优先级越高
+		1、worker_priority number；优先级
+		nice：[-20,19]
+		ps axo command,pid,psr,ni
+
+		例子：worker_priority -5；检测，重载
+
+	（4）调试定位问题：
+
+		1、daemon on |off；
+		是否以守护进程方式启动Nginx，默认是
+
+		2、master——process on|off；
+		是否以master|work 模式启动，正常都应该启动
+
+		3、error_log 错误日志文件记录方式及日志级别
+    			debug要使用，在编译时--with要加上
+
+		方式：
+    			file /PATH/TO/SOME_LOG_FILE;
+    			stderr:发送到错误输出，在当前终端
+    			syslog：server=address[parameter=value]:发送到syslog服务器；
+    			memory：size，记录内存中，已关机就没了
+
+		日志级别：
+    			debug依赖于configure  --with-debug选项
