@@ -1,0 +1,51 @@
+1.preinstall
+
+	yum groupinstall "Development Tools" "Server Platform Development" -y
+
+2.install something to use
+
+	yum -y install openssl-devel pcre-devel zlib-devel
+
+3.add user
+
+	useradd -r nginx
+4.download from  Official website
+
+	wget http://nginx.org/download/nginx-1.8.1.tar.gz
+
+5.configure
+
+	./configure --prefix=/usr/local/nginx  --conf-path=/etc/nginx/nginx.conf --user=nginx --group=nginx --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --pid-path=/var/run/nginx/nginx.pid --lock-path=/var/lock/nginx.lock --with-http_ssl_module  --with-debug --with-http_stub_status_module  --with-http_gzip_static_module
+
+7.start
+
+	/usr/local/nginx/sbin/nginx
+	
+7.if mistake,please
+
+	/usr/sbin/groupadd -f nginx
+	/usr/sbin/useradd -g nginx nginx
+8.restart
+	/usr/local/nginx/sbin/nginx
+
+9.set path
+
+	vim /etc/profile.d/nginx.sh
+
+export PATH=/usr/local/nginx/sbin:$PATH
+
+10.exec bash /etc/profile.d/nginx.sh
+
+11.check 
+	nginx -t
+
+12.reload
+	nginx -s reload
+
+13.stop
+	nginx -s stop
+
+14.start
+	nginx
+
+
